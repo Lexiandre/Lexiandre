@@ -8,10 +8,10 @@ import ratings.datastructures.LinkedListNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.junit.Assert.*;
-import static ratings.FileReader.readSongs;
-import static ratings.FileReader.readMovies;
+import static ratings.FileReader.*;
 
 
 public class TestFiles {
@@ -37,50 +37,6 @@ public class TestFiles {
         assertEquals(0, wrongFile.size());
     }
 
-//    @Test
-//    public void scannerSong(){
-//        var getMeSongs = readSongs("data/ratingsSong.csv");
-//        String theTitle = "Bitter";
-//
-//        ArrayList<String> titles = new ArrayList<>();//should have the same index as the
-//        for(Song song : getMeSongs){//accumulate titles into titles as a list
-//            titles.add(song.getTitle());
-//        }
-//
-//        int idx1;
-//        if(titles.contains(theTitle)){
-//            idx1 = titles.indexOf(theTitle);
-//            assertNotNull(getMeSongs);
-//            assertEquals("Bitter", getMeSongs.get(idx1).getTitle());
-//            //System.out.println("idx1: " + idx1);
-//            LinkedListNode<Rating> songLinked = getMeSongs.get(idx1).getRatings();
-//
-//            ArrayList<String> reviewers = new ArrayList<>();
-//            reviewers.add("264");//Bitter ratings
-//            var rating1 = 5;
-//
-//            Song track = getMeSongs.get(idx1);
-//            assertNotNull(track);
-//
-//            int indexer = 0;
-//            if(theTitle.equals(track.getTitle())){
-//                assertEquals(theTitle, "Bitter");
-//                //assertEquals(5, track.);
-//                var head = songLinked;
-//                assertTrue(rating1 == track.getRatings().getValue().getRating());//just one rating
-//
-//                while(head != null){
-//                    assertNotNull(reviewers);
-//                    assertTrue(reviewers.size()>0);
-//                    assertEquals(reviewers.get(indexer), head.getValue().getReviewerID());
-//                    assertTrue(reviewers.contains(head.getValue().getReviewerID()));//same as above
-//                    head = head.getNext();
-//                    indexer ++;
-//                }
-//            }
-//        }
-//
-//    }
 
     @Test
     public void testingRatingsSong(){
@@ -141,29 +97,21 @@ public class TestFiles {
         assertNotNull(getMeMovies);
         String check = "Toy Story";
         String castMem = "John Morris";
-        String testAssassins = "Assassins";
+        //String testAssassins = "Assassins";
+        assertNotNull(getMeMovies);
 
         //get titles here too?
         //accounting for unordered items
         ArrayList<String> titles = new ArrayList<>();
+        HashMap<String, Movie> movies = new HashMap<>();
 
         for(Movie movie : getMeMovies){//accumulate titles into titles
             titles.add(movie.getTitle());
+            movies.put(movie.getTitle(), movie);
         }
 
-        try {
-            assertNotNull(getMeMovies);
-            var movIndex2 = titles.indexOf(check);
-            System.out.println(movIndex2);
-            assertEquals("Toy Story", getMeMovies.get(movIndex2).getTitle()); //title
-            assertEquals(10, getMeMovies.get(movIndex2).getCast().size()); //size
-            assertEquals("Tom Hanks", getMeMovies.get(movIndex2).getCast().get(0));
-            assertTrue(getMeMovies.get(movIndex2).getCast().contains(castMem));
-        }catch(IndexOutOfBoundsException iE){
-            assertNotNull(getMeMovies);
-        }
-
-
+        assertTrue(movies.containsKey("Jumanji"));
+        assertEquals(movies.size(), 5);
 
         int movIndex = 0;
         //String check = "Toy Story";
@@ -188,43 +136,77 @@ public class TestFiles {
             }
         }
 
+//        var emptyMov = readMovies("data/moviesSmalls.csv");//Smalls instead of Small file not found
+//        assertEquals(0, emptyMov.size());
+//        assertTrue(emptyMov.isEmpty());
+
+    }
+
+
+
+    @Test
+    public void bad_title(){//bad_title, max_two movies
+        var getMeMovies = readMovies("data/moviesSmall.csv");
+
+        HashMap<String, Movie> movies = new HashMap<>();
+        assertNotNull(getMeMovies);
+
+        for(Movie movie : getMeMovies){//accumulate titles into titles
+            movies.put(movie.getTitle(), movie);
+        }
+
+        assertNotNull(movies);
+        assertTrue(movies.containsKey("Jumanji"));
+        assertEquals(movies.size(), 5);
+
+//        movies.get("Copycat").getCast().add("Alex");
+//        for(String key: movies.keySet()){
+//            System.out.println(key);
+//            System.out.println(movies.get(key).getCast());
+//        }
+        //System.out.println(movies.get("Movie").getCast());
+
+    }
+
+    @Test
+    public void emptyTest(){
         var emptyMov = readMovies("data/moviesSmalls.csv");//Smalls instead of Small file not found
         assertEquals(0, emptyMov.size());
         assertTrue(emptyMov.isEmpty());
-
     }
 
 
     @Test
-    public void movieOrder(){
-        var getMeMovies = readMovies("data/moviesSmall.csv");
-        assertNotNull(getMeMovies);
-        //get titles here too?
-        //accounting for unordered items
-        ArrayList<String> titles = new ArrayList<>();
-        String testAssassins = "Copycat";
-        System.out.println(getMeMovies.size());
+    public void testhashSongs(){
+        var getMeSongs = readSongs2("data/ratingsSong.csv");
+        //var size = getMeSongs.size();
+        String id = "0wJoRiX5K5BxlqZTolB2LD";
 
-        assertNotNull(getMeMovies);
+        HashMap<String, Song> songs = new HashMap<>();
+        //testing for titles
+        String theTitle = "Purple Haze";
+        for(Song track: getMeSongs){
+            songs.put(track.getSongID(), track);
 
-        for(Movie movie : getMeMovies){//accumulate titles into titles
-            titles.add(movie.getTitle());
-            //assertFalse(movie.getTitle().equals("Movie"));
-
-            //Assassins,Sylvester Stallone,Antonio Banderas,Julianne Moore,Muse Watson,Steve Kahan,Kelly Rowan,Reed Diamond
-            if(movie.getTitle().equals(testAssassins)){
-                assertNotNull(getMeMovies);
-                //System.out.println("Movies: "+ movie.getCast());
-                assertTrue(getMeMovies.size() == 5);
-                assertTrue(testAssassins.equals(movie.getTitle()));
+            if(theTitle.equals(track.getTitle())){
+                assertEquals(theTitle, "Purple Haze");
             }
         }
-        //assertFalse(titles.contains("Movie"));
+
+        var purple = songs.get("0wJoRiX5K5BxlqZTolB2LD");
+        var start = purple.getRatings(); //place holder
+        while(start != null){
+            System.out.print(" Id:" + start.getValue().getReviewerID());
+            System.out.print(" rating: " + start.getValue().getRating()+"| ");
+
+            start = start.getNext();
+        }
+
+        //for wrong fieName
+        var wrongFile = readSongs("data/ratingsSongs1.csv.");//cant find file so return an empty array
+        assertTrue(wrongFile.isEmpty());
+        assertEquals(0, wrongFile.size());
     }
-
-    //ARRAYLIST MAY BE RETURNED IN ANY ORDER
-    //the edge cases
-
 
     /*
     movie_badTitle ***
