@@ -37,7 +37,6 @@ public class TestFiles {
         assertEquals(0, wrongFile.size());
     }
 
-
     @Test
     public void testingRatingsSong(){
         var getMeSongs = readSongs("data/ratingsSong.csv");
@@ -87,7 +86,6 @@ public class TestFiles {
             }
         }
     }
-
 
 
     @Test
@@ -173,12 +171,13 @@ public class TestFiles {
         var emptyMov = readMovies("data/moviesSmalls.csv");//Smalls instead of Small file not found
         assertEquals(0, emptyMov.size());
         assertTrue(emptyMov.isEmpty());
+
     }
 
 
     @Test
     public void testhashSongs(){
-        var getMeSongs = readSongs2("data/ratingsSong.csv");
+        var getMeSongs = readSongs("data/ratingsSong.csv");
         //var size = getMeSongs.size();
         String id = "0wJoRiX5K5BxlqZTolB2LD";
 
@@ -198,7 +197,6 @@ public class TestFiles {
         while(start != null){
             System.out.print(" Id:" + start.getValue().getReviewerID());
             System.out.print(" rating: " + start.getValue().getRating()+"| ");
-
             start = start.getNext();
         }
 
@@ -227,5 +225,6 @@ public class TestFiles {
     Song ratings in wrong order
 
      */
+
 
 }

@@ -10,20 +10,63 @@ import java.util.*;
 public class FileReader {
     //private ArrayList<Song> SongsList = new ArrayList<Song>();
 
-    public static ArrayList<Song> readSongs(String fileName) {
-        ArrayList<Song> SongsList = new ArrayList<Song>(); //SONG LIST TO RETURN
+    //READ SONGS/////////////////////////////////////////////////////////
+    public static ArrayList<Song> readSongs(String fileName) { //faster than ArrayList implementation
+        ArrayList<Song> SongsList = new ArrayList<>(); //SONG LIST TO RETURN
         //songID,artist,title,reviewerID,rating
 
         try {
             ArrayList<String> songFile = new ArrayList<String>(Files.readAllLines(Paths.get(fileName)));
-            //using the titles as a check for present elements
-            ArrayList<String> SongIdList = new ArrayList<>();
-            //HashMap<String, Song> Id_to_Song = new HashMap<>();
+            //using the ID as a check for present elements
+            HashMap<String, Song> Id_to_Song = new HashMap<>();
 
             for (String line : songFile) {
-                //go through each Line
-                //and for each line, process as list format
-                //loop through line elements to obtain all details from line
+                if (!(line.isBlank())) {//redundant?
+                    ArrayList<String> songInfo = new ArrayList<>(Arrays.asList(line.split(",")));
+                    //songID,artist,title,reviewerID,rating
+                    //idx0,      1,     2,         3,     4
+                    String SongId = songInfo.get(0);
+                    String artist = songInfo.get(1);
+                    String title = songInfo.get(2);
+                    String Reviewer = songInfo.get(3);
+                    int ratingInt = Integer.parseInt(songInfo.get(4));
+                    Rating rating_to_add = new Rating(Reviewer, ratingInt);
+
+                    if(Id_to_Song.containsKey(SongId)){
+                        Id_to_Song.get(SongId).addRating(rating_to_add);
+                    }
+                    else {
+                        //else add new song to songList
+                        Song music = new Song(title, artist, SongId);
+                        music.addRating(rating_to_add);
+                        Id_to_Song.put(SongId, music);
+                    }
+                }
+
+            }
+            // add values of the hashmap to the songslist
+            for(String id: Id_to_Song.keySet()){
+                SongsList.add(Id_to_Song.get(id));
+            }
+            return SongsList;
+
+        } catch (IOException fileReadError) {
+            return SongsList;
+        }
+
+    }
+
+    public static ArrayList<Song> readSongs2(String fileName) { //using arrayList. SLOW
+        ArrayList<Song> SongsList = new ArrayList<>();
+        //songID,artist,title,reviewerID,rating
+
+        try {
+            ArrayList<String> songFile = new ArrayList<String>(Files.readAllLines(Paths.get(fileName)));
+            //using the SongID as a check for present elements, because they are unique
+            ArrayList<String> SongIdList = new ArrayList<>();
+
+
+            for (String line : songFile) {
                 if (!(line.isBlank())) {//redundant?
                     ArrayList<String> songInfo = new ArrayList<>(Arrays.asList(line.split(",")));
 
@@ -38,16 +81,16 @@ public class FileReader {
                     Rating rating_to_add = new Rating(ReviewerID, ratingInt);
                     Song music = new Song(title, artist, SongId);
 
-                    if (SongIdList.contains(title)) {
+                    if (SongIdList.contains(SongId)) {
                         //used the ID, assuming they are unique
                         //just add rating if song is already present
-                        int indexOfSong = SongIdList.indexOf(title);
+                        int indexOfSong = SongIdList.indexOf(SongId);
                         SongsList.get(indexOfSong).addRating(rating_to_add);
                     } else {
                         //else add new song to songList
                         music.addRating(rating_to_add);
                         SongsList.add(music);
-                        SongIdList.add(title);//add the title here in order to check it later in the if statement
+                        SongIdList.add(SongId);//add the title here in order to check it later in the if statement
                     }
                 }
 
@@ -60,26 +103,21 @@ public class FileReader {
 
     }
 
-
+//////READ MOVIES///////////////////////////////////////////////////////
     public static ArrayList<Movie> readMovies(String fileName) {
-        //movies.csv
-        //number of castMembers vary
-        //if input does not exist, return an empty ArrayList
-        //cast must be in the oder they appear in file, but Movies can appear in any order.
         ArrayList<Movie> moviesList = new ArrayList<Movie>();
 
         try {
             ArrayList<String> songFile = new ArrayList<String>(Files.readAllLines(Paths.get(fileName)));
-            ArrayList<String> titles = new ArrayList<>();
+            //ArrayList<String> titles = new ArrayList<>();
             HashMap<String, ArrayList<String>> movies = new HashMap<>();
             for (String line : songFile) {
-
                 if (!(line.isBlank())) {
                     ArrayList<String> movieInfo = new ArrayList<>(Arrays.asList(line.split(",")));
                     //Toy Story,     Tom Hanks,Tim Allen,Don Rickles,Wallace Shawn....
                     //ArrayList
                     String movieTitles = movieInfo.get(0); //need first element for title
-                    if (!(movies.keySet().contains(movieTitles))) {
+                    if (!(movies.containsKey(movieTitles))) {
                         ArrayList<String> castMembers = new ArrayList<>();
                         for (int i = 1; i < movieInfo.size(); i++) {
                             castMembers.add(movieInfo.get(i));
@@ -108,89 +146,47 @@ public class FileReader {
     }
 
 
-    public static ArrayList<Song> readSongs2(String fileName) {
-        ArrayList<Song> SongsList = new ArrayList<Song>(); //SONG LIST TO RETURN
-        //songID,artist,title,reviewerID,rating
-
-        try {
-            ArrayList<String> songFile = new ArrayList<String>(Files.readAllLines(Paths.get(fileName)));
-            //using the titles as a check for present elements
-            HashMap<String, Song> Id_to_Song = new HashMap<>();
-
-            for (String line : songFile) {
-                if (!(line.isBlank())) {//redundant?
-                    ArrayList<String> songInfo = new ArrayList<>(Arrays.asList(line.split(",")));
-                    //songID,artist,title,reviewerID,rating
-                    //idx0,      1,     2,         3,     4
-                    String SongId = songInfo.get(0);
-                    String artist = songInfo.get(1);
-                    String title = songInfo.get(2);
-                    String Reviewer = songInfo.get(3);
-                    int ratingInt = Integer.parseInt(songInfo.get(4));
-
-                    Rating rating_to_add = new Rating(Reviewer, ratingInt);
-                    Song music = new Song(title, artist, SongId);
 
 
-                    if(Id_to_Song.keySet().contains(SongId)){
-                        Id_to_Song.get(SongId).addRating(rating_to_add);
-                    }
-                    else {
-                        //else add new song to songList
-                        music.addRating(rating_to_add);
-                        Id_to_Song.put(SongId, music);
-                    }
+    //TASK 7 POLYMORPH //////////////////////////////////////////////////////////////////////////////////
+    public static ArrayList<Movie> readMovieRatings(ArrayList<Movie> movies, String ratingsFile){
+
+        ArrayList<Movie> ratedMovies = new ArrayList<>();
+        //FORMAT: of ratings File
+        //title,reviewerId,rating
+
+        try{
+            ArrayList<String> ratings = new ArrayList<String>(Files.readAllLines(Paths.get(ratingsFile)));
+
+            HashMap<String, Movie> acc_ratings = new HashMap<>();
+            for(Movie mov : movies){//accumulate the movies into hashmap for use later
+                acc_ratings.put(mov.getTitle(), mov);
+            }
+
+            for(String lines: ratings){
+                ArrayList<String> line = new ArrayList<>(Arrays.asList(lines.split(",")));
+                String title = line.get(0);
+                String Reviewer = line.get(1);
+                int rate = Integer.parseInt(line.get(2));
+
+                if(acc_ratings.containsKey(title)){//add ratings based on title
+                    Rating mov_rating = new Rating(Reviewer, rate);
+                    acc_ratings.get(title).addRating(mov_rating);
                 }
-
             }
-            // add values of the hashmap to the songslist
-            for(String id: Id_to_Song.keySet()){
-                SongsList.add(Id_to_Song.get(id));
-            }
-            return SongsList;
 
-        } catch (IOException fileReadError) {
-            return SongsList;
+            for(String title: acc_ratings.keySet()){//looping through the created hashmap
+                if(acc_ratings.get(title).getRatings()!= null){
+                    ratedMovies.add(acc_ratings.get(title));
+                }
+            }
+            return ratedMovies;
+
+        }catch(IOException fileReadErr){
+            return ratedMovies;
         }
 
     }
 
 
-
-//Main was here ;)
-//    public static void main(String[] args) {
-//
-//        //Temporal testcase
-//        //TEST for readSongs
-////        var getMeSongs = readSongs("data\\ratingsSong.csv");
-////        var size = getMeSongs.size();
-////
-////        System.out.println("Songs size : "+size+"\n");
-////
-////        for (Song music: getMeSongs) {
-////            System.out.println("|" +music.getTitle()+ "| " +music.getArtist() );
-////            System.out.print("avgRating :"+music.averageRating()+"\t");
-////            System.out.println("|bayesianAvg: "+ music.bayesianAverageRating(2,3));
-////        }
-////        //check ratings
-////
-////        LinkedListNode<Rating> songLinked = getMeSongs.get(1).getRatings();
-////        var header = songLinked;
-////
-////        System.out.println(header.getValue().getReviewerID());
-////        System.out.println(header.getNext().getValue().getReviewerID());
-//        //System.out.println(header.getValue().getReviewerID());
-//
-//        System.out.println("\n \n");
-//        //Test for readMovies
-//        var getMeMovies = readMovies("data/moviesSmall.csv");
-//        System.out.println("movieSize : "+getMeMovies.size());
-//        for(Movie mov : getMeMovies){
-//            if(mov.getTitle().isBlank()){
-//                System.out.println(mov.getTitle().equals(""));
-//                System.out.println(mov.getCast());
-//            }
-//        }
-//
-//    }
 }
